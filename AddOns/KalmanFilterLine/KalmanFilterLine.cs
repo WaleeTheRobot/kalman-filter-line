@@ -23,7 +23,7 @@ namespace NinjaTrader.NinjaScript.Indicators
 
         [NinjaScriptProperty, XmlIgnore, ReadOnly(true)]
         [Display(Name = "Version", Description = "Kalman Filter Line", Order = 0, GroupName = GROUP_NAME_GENERAL)]
-        public string Version => "1.0.0";
+        public string Version => "1.0.1";
 
         #endregion
 
