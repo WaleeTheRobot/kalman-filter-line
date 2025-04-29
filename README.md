@@ -1,6 +1,6 @@
 # Kalman Filter Line
 
-<img src="./screenshot.png" alt="TrustMeBro" style="display: block; margin: 0 auto">
+<img src="./screenshot.png" alt="Kalman Filter Line" style="display: block; margin: 0 auto">
 
 Comparison:
 
