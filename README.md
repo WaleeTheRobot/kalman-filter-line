@@ -2,6 +2,7 @@
 
 <img src="./screenshot.png" alt="TrustMeBro" style="display: block; margin: 0 auto">
 
+Comparison:
 Kalman Filter Line: Blue
 
 EMA: Green
