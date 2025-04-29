@@ -80,7 +80,7 @@ namespace NinjaTrader.NinjaScript.Indicators
             {
                 Description = @"The smarter moving average... adaptive ATR and autocorrelation-driven moving average.";
                 Name = "_KalmanFilterLine";
-                Calculate = Calculate.OnEachTick;
+                Calculate = Calculate.OnBarClose;
                 IsOverlay = true;
                 DisplayInDataBox = true;
                 DrawOnPricePanel = true;
@@ -93,8 +93,8 @@ namespace NinjaTrader.NinjaScript.Indicators
                 Period = 9;
                 PriceType = PriceTypeOption.Close;
                 EnableDynamicKalmanFilterParams = true;
-                BaseQ = 1e-5;
-                BaseR = 1e-4;
+                BaseQ = 0.01;
+                BaseR = 0.1;
 
                 AddPlot(Brushes.DodgerBlue, "Kalman Line");
                 KalmanLineOpacity = 255;
@@ -107,6 +107,9 @@ namespace NinjaTrader.NinjaScript.Indicators
             }
             else if (State == State.Configure)
             {
+                // Force calculate on bar close. Having multiple lines will start to converge in real-time due to filter being overly sensitive
+                // to current price. This also helps it be consistent with historical data.
+                Calculate = Calculate.OnBarClose;
                 Plots[0].Opacity = KalmanLineOpacity;
             }
         }
@@ -127,22 +130,12 @@ namespace NinjaTrader.NinjaScript.Indicators
             if (CurrentBar < Period)
                 return;
 
-            if (IsFirstTickOfBar)
-            {
-                if (_window.Count >= Period)
-                    _window.RemoveAt(0);
+            if (_window.Count >= Period)
+                _window.RemoveAt(0);
+            _window.Add(GetPrice(0));
 
-                _window.Add(GetPrice(1));
-                UpdateKFParams(_kf, _window);
-            }
-
-            UpdateKalmanLine();
-        }
-
-        private void UpdateKalmanLine()
-        {
-            // Update plot with filtered value
-            Values[0][0] = _kf.Update(GetPrice(0));
+            UpdateKFParams(_kf, _window);
+            KalmanLine[0] = _kf.Update(GetPrice(0));
         }
 
         private void UpdateKFParams(KalmanFilter1D filter, List<double> inputSeries)
@@ -151,9 +144,8 @@ namespace NinjaTrader.NinjaScript.Indicators
                 return;
 
             double absAutocorr = Math.Abs(NerdFunctions.Autocorrelation(inputSeries));
-            double qScale = Math.Max(0.1, Math.Min(2.0, 1.0 / (absAutocorr + 0.1)));
-            double rScale = Math.Max(0.5, Math.Min(2.0, absAutocorr * 2.0));
-
+            double qScale = Math.Max(0.01, Math.Min(10.0, 1.0 / (absAutocorr + 0.1))) * (Period / 9.0);
+            double rScale = Math.Max(0.1, Math.Min(10.0, absAutocorr * 2.0)) * (9.0 / Period);
             // ATR adjustment for boosting
             double normalizedAtr = _atr[0] / TickSize;
             double atrFactor = 1.0 + (normalizedAtr / 100.0);
