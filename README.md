@@ -19,3 +19,5 @@ This forces the indicator to calculate OnBarClose, even if the user selects a di
 **Base R (Measurement Noise):** turn it up to get a smoother, more stable line; turn it down to let raw price data influence the filter more strongly.
 
 For usage, you can download the zip in the release page. You can import this zip file similar to importing a normal NinjaTrader Add-On. https://github.com/WaleeTheRobot/kalman-filter-line/releases
+
+NinjaTrader Ecosystem: https://ninjatraderecosystem.com/user-app-share-download/kalman-filter-line-smarter-moving-average
